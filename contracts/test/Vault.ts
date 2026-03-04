@@ -97,7 +97,7 @@ describe("Vault", function () {
       assert.strictEqual(user2Share, deposited2);
       assert.strictEqual(totalAsset, deposited1 + deposited2);
     })
-    
+
     it("Should calculate and update correctly when deposited sequentially by multiple users", async function () {
       const deposited1 = 1n * 10n ** 18n;
       await vault.write.deposit({
@@ -136,6 +136,162 @@ describe("Vault", function () {
       assert.strictEqual(user3Share, deposited3);
       assert.strictEqual(user4Share, deposited4);
       assert.strictEqual(totalAsset, deposited1 + deposited2 + deposited3 + deposited4);
+    })
+  })
+
+  describe("Withdraw", function () {
+
+    it("Should withdraw right amount of asset", async function () {
+      const depositedAmount = 10n * 10n ** 18n;
+      await vault.write.deposit({
+        account: user[0].account,
+        value: depositedAmount,
+      })
+
+      const shareAmount = 10n * 10n ** 18n;
+      await vault.write.withdraw(
+        [shareAmount],
+        { account: user[0].account },
+      )
+
+      const totalAsset = await vault.read.totalAsset();
+      const totalShares = await vault.read.totalShares();
+      const userShare = await vault.read.shares([user[0].account.address]);
+
+      assert.strictEqual(totalAsset, 0n);
+      assert.strictEqual(totalShares, 0n);
+      assert.strictEqual(userShare, depositedAmount - shareAmount);
+    })
+
+    it("Should allow partial withdraw", async function () {
+
+      const depositedAmount = 10n * 10n ** 18n;
+      await vault.write.deposit({
+        account: user[0].account,
+        value: depositedAmount,
+      })
+      const totalAssetBefore = await vault.read.totalAsset();
+      const totalSharesBefore = await vault.read.totalShares();
+
+      const shareAmount = 4n * 10n ** 18n;
+      await vault.write.withdraw(
+        [shareAmount],
+        { account: user[0].account },
+      )
+
+      const totalAsset = await vault.read.totalAsset();
+      const totalShares = await vault.read.totalShares();
+      const userShare = await vault.read.shares([user[0].account.address]);
+
+      assert.strictEqual(totalAsset, totalAssetBefore - shareAmount);
+      assert.strictEqual(totalShares, totalSharesBefore - shareAmount);
+      assert.strictEqual(userShare, depositedAmount - shareAmount);
+    })
+
+    it("Should allow multi-user withdraw", async function () {
+
+      const amount1 = 10n * 10n ** 18n;
+      await vault.write.deposit({
+        account: user[0].account,
+        value: amount1,
+      })
+
+      const amount2 = 20n * 10n ** 18n;
+      await vault.write.deposit({
+        account: user[1].account,
+        value: amount2,
+      })
+
+      const amount3 = 10n * 10n ** 18n;
+      await vault.write.deposit({
+        account: user[2].account,
+        value: amount3,
+      })
+
+      const amount4 = 30n * 10n ** 18n;
+      await vault.write.deposit({
+        account: user[3].account,
+        value: amount4,
+      })
+
+      const totalAssetBefore = await vault.read.totalAsset();
+      const totalSharesBefore = await vault.read.totalShares();
+
+      const withdrawAmount1 = 10n * 10n ** 18n;
+      await vault.write.withdraw(
+        [withdrawAmount1],
+        { account: user[0].account },
+      )
+      const withdrawAmount2 = 15n * 10n ** 18n;
+      await vault.write.withdraw(
+        [withdrawAmount2],
+        { account: user[1].account },
+      )
+      const withdrawAmount3 = 10n * 10n ** 18n;
+      await vault.write.withdraw(
+        [withdrawAmount3],
+        { account: user[2].account },
+      )
+      const withdrawAmount4 = 20n * 10n ** 18n;
+      await vault.write.withdraw(
+        [withdrawAmount4],
+        { account: user[3].account },
+      )
+
+      const totalAsset = await vault.read.totalAsset();
+      const totalShares = await vault.read.totalShares();
+      const user1Share = await vault.read.shares([user[0].account.address]);
+      const user2Share = await vault.read.shares([user[1].account.address]);
+      const user3Share = await vault.read.shares([user[2].account.address]);
+      const user4Share = await vault.read.shares([user[3].account.address]);
+
+      assert.strictEqual(totalAsset, totalAssetBefore - (withdrawAmount1 + withdrawAmount2 + withdrawAmount3 + withdrawAmount4));
+      assert.strictEqual(totalShares, user1Share + user2Share + user3Share + user4Share);
+      assert.strictEqual(user1Share, amount1 - withdrawAmount1);
+      assert.strictEqual(user2Share, amount2 - withdrawAmount2);
+      assert.strictEqual(user3Share, amount3 - withdrawAmount3);
+      assert.strictEqual(user4Share, amount4 - withdrawAmount4);
+    })    
+
+    it("Should revert if 0 withdraw", async function () {
+
+      const depositedAmount = 10n * 10n ** 18n;
+      await vault.write.deposit({
+        account: user[0].account,
+        value: depositedAmount,
+      })
+
+      await assert.rejects(
+        vault.write.withdraw(
+          [0n],
+          { account: user[0].account }
+        )
+      )
+    })
+
+    it("Should revert if totalAsset is 0", async function () {
+
+      await assert.rejects(
+        vault.write.withdraw(
+          [10n * 10n ** 18n],
+          { account: user[0].account }
+        )
+      )
+    })
+
+    it("Should revert if withdraw more than owned", async function () {
+      const depositedAmount = 10n * 10n ** 18n;
+      await vault.write.deposit({
+        account: user[0].account,
+        value: depositedAmount,
+      })
+
+      await assert.rejects(
+        vault.write.withdraw(
+          [12n * 10n ** 18n],
+          { account: user[0].account }
+        )
+      )
     })
   })
 });
