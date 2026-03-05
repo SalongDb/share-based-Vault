@@ -17,6 +17,8 @@ contract Vault is ReentrancyGuard {
     event Deposit(address indexed sender, uint256 amount);
     event Withdraw(address indexed receiver, uint256 amount);
 
+    receive() external payable {}
+
     function deposit() external payable {
         if (msg.value == 0) revert ZeroDeposit();
 
@@ -57,4 +59,5 @@ contract Vault is ReentrancyGuard {
     function totalAsset() public view returns (uint256) {
         return address(this).balance;
     }
+
 }

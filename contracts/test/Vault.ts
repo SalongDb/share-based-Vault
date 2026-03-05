@@ -251,7 +251,7 @@ describe("Vault", function () {
       assert.strictEqual(user2Share, amount2 - withdrawAmount2);
       assert.strictEqual(user3Share, amount3 - withdrawAmount3);
       assert.strictEqual(user4Share, amount4 - withdrawAmount4);
-    })    
+    })
 
     it("Should revert if 0 withdraw", async function () {
 
@@ -292,6 +292,90 @@ describe("Vault", function () {
           { account: user[0].account }
         )
       )
+    })
+
+    it("Should not allow user to withdraw another user's shares", async function () {
+
+      const depositAmount = 10n * 10n ** 18n;
+
+      await vault.write.deposit({
+        account: user[0].account,
+        value: depositAmount,
+      });
+
+      await assert.rejects(
+        vault.write.withdraw(
+          [depositAmount],
+          { account: user[1].account }
+        )
+      )
+    })
+
+    it("Should increase share price if ETH directly sent to contract", async function () {
+
+      const depositedAmount = 10n * 10n ** 18n;
+      await vault.write.deposit({
+        account: user[0].account,
+        value: depositedAmount,
+      })
+
+      const forceSentETH = 20n * 10n ** 18n;
+      await user[1].sendTransaction({
+        to: vault.address,
+        value: forceSentETH,
+      })
+
+      const totalAssetBefore = await vault.read.totalAsset();
+      const totalShares = await vault.read.totalShares();
+      const sharePrice = totalAssetBefore / totalShares;
+
+      await vault.write.withdraw(
+        [depositedAmount],
+        { account: user[0].account },
+      )
+
+      const totalAssetAfter = await vault.read.totalAsset();
+
+      assert.strictEqual(totalAssetAfter, 0n);
+      assert.strictEqual(sharePrice, 3n);
+    })
+
+    it("Should distribute donated ETH proportionally", async function () {
+
+      const depositA = 10n * 10n ** 18n;
+      const depositB = 10n * 10n ** 18n;
+
+      await vault.write.deposit({
+        account: user[0].account,
+        value: depositA,
+      });
+
+      await vault.write.deposit({
+        account: user[1].account,
+        value: depositB,
+      });
+
+      const donation = 20n * 10n ** 18n;
+
+      await user[2].sendTransaction({
+        to: vault.address,
+        value: donation,
+      });
+
+      await vault.write.withdraw(
+        [depositA],
+        { account: user[0].account }
+      );
+      const totalAssetBefore = await vault.read.totalAsset();
+
+      await vault.write.withdraw(
+        [depositB],
+        { account: user[1].account }
+      );
+      const totalAssetAfter = await vault.read.totalAsset();
+
+      assert.strictEqual(totalAssetBefore, 20n * 10n ** 18n);
+      assert.strictEqual(totalAssetAfter, 0n);
     })
   })
 });
