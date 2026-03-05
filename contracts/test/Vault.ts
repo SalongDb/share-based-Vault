@@ -21,7 +21,7 @@ describe("Vault", function () {
 
   describe("Deposits", function () {
 
-    it("Should mint shares correctly for the first deposit", async function () {
+    it("Should mint balanceOf correctly for the first deposit", async function () {
       const deposited = 1n * 10n ** 18n;
 
       await vault.write.deposit({
@@ -29,13 +29,13 @@ describe("Vault", function () {
         value: deposited,
       });
 
-      const totalShares = await vault.read.totalShares();
-      const userShare = await vault.read.shares([user[1].account.address]);
-      const totalAsset = await vault.read.totalAsset();
+      const totalSupply = await vault.read.totalSupply();
+      const userShare = await vault.read.balanceOf([user[1].account.address]);
+      const totalAssets = await vault.read.totalAssets();
 
-      assert.strictEqual(totalShares, deposited);
+      assert.strictEqual(totalSupply, deposited);
       assert.strictEqual(userShare, deposited);
-      assert.strictEqual(totalAsset, deposited);
+      assert.strictEqual(totalAssets, deposited);
     });
 
     it("Should revert when deeposited 0", async function () {
@@ -64,13 +64,13 @@ describe("Vault", function () {
         value: deposited2,
       });
 
-      const totalShares = await vault.read.totalShares();
-      const userShare = await vault.read.shares([user[1].account.address]);
-      const totalAsset = await vault.read.totalAsset();
+      const totalSupply = await vault.read.totalSupply();
+      const userShare = await vault.read.balanceOf([user[1].account.address]);
+      const totalAssets = await vault.read.totalAssets();
 
-      assert.strictEqual(totalShares, deposited1 + deposited2);
+      assert.strictEqual(totalSupply, deposited1 + deposited2);
       assert.strictEqual(userShare, deposited1 + deposited2);
-      assert.strictEqual(totalAsset, deposited1 + deposited2);
+      assert.strictEqual(totalAssets, deposited1 + deposited2);
     })
 
     it("Should calculate and update correctly on deposit by another user", async function () {
@@ -87,15 +87,15 @@ describe("Vault", function () {
         value: deposited2,
       });
 
-      const totalShares = await vault.read.totalShares();
-      const user1Share = await vault.read.shares([user[1].account.address]);
-      const user2Share = await vault.read.shares([user[2].account.address]);
-      const totalAsset = await vault.read.totalAsset();
+      const totalSupply = await vault.read.totalSupply();
+      const user1Share = await vault.read.balanceOf([user[1].account.address]);
+      const user2Share = await vault.read.balanceOf([user[2].account.address]);
+      const totalAssets = await vault.read.totalAssets();
 
-      assert.strictEqual(totalShares, deposited1 + deposited2);
+      assert.strictEqual(totalSupply, deposited1 + deposited2);
       assert.strictEqual(user1Share, deposited1);
       assert.strictEqual(user2Share, deposited2);
-      assert.strictEqual(totalAsset, deposited1 + deposited2);
+      assert.strictEqual(totalAssets, deposited1 + deposited2);
     })
 
     it("Should calculate and update correctly when deposited sequentially by multiple users", async function () {
@@ -123,19 +123,19 @@ describe("Vault", function () {
         value: deposited4,
       });
 
-      const totalShares = await vault.read.totalShares();
-      const user1Share = await vault.read.shares([user[1].account.address]);
-      const user2Share = await vault.read.shares([user[2].account.address]);
-      const user3Share = await vault.read.shares([user[3].account.address]);
-      const user4Share = await vault.read.shares([user[4].account.address]);
-      const totalAsset = await vault.read.totalAsset();
+      const totalSupply = await vault.read.totalSupply();
+      const user1Share = await vault.read.balanceOf([user[1].account.address]);
+      const user2Share = await vault.read.balanceOf([user[2].account.address]);
+      const user3Share = await vault.read.balanceOf([user[3].account.address]);
+      const user4Share = await vault.read.balanceOf([user[4].account.address]);
+      const totalAssets = await vault.read.totalAssets();
 
-      assert.strictEqual(totalShares, deposited1 + deposited2 + deposited3 + deposited4);
+      assert.strictEqual(totalSupply, deposited1 + deposited2 + deposited3 + deposited4);
       assert.strictEqual(user1Share, deposited1);
       assert.strictEqual(user2Share, deposited2);
       assert.strictEqual(user3Share, deposited3);
       assert.strictEqual(user4Share, deposited4);
-      assert.strictEqual(totalAsset, deposited1 + deposited2 + deposited3 + deposited4);
+      assert.strictEqual(totalAssets, deposited1 + deposited2 + deposited3 + deposited4);
     })
   })
 
@@ -154,12 +154,12 @@ describe("Vault", function () {
         { account: user[0].account },
       )
 
-      const totalAsset = await vault.read.totalAsset();
-      const totalShares = await vault.read.totalShares();
-      const userShare = await vault.read.shares([user[0].account.address]);
+      const totalAssets = await vault.read.totalAssets();
+      const totalSupply = await vault.read.totalSupply();
+      const userShare = await vault.read.balanceOf([user[0].account.address]);
 
-      assert.strictEqual(totalAsset, 0n);
-      assert.strictEqual(totalShares, 0n);
+      assert.strictEqual(totalAssets, 0n);
+      assert.strictEqual(totalSupply, 0n);
       assert.strictEqual(userShare, depositedAmount - shareAmount);
     })
 
@@ -170,8 +170,8 @@ describe("Vault", function () {
         account: user[0].account,
         value: depositedAmount,
       })
-      const totalAssetBefore = await vault.read.totalAsset();
-      const totalSharesBefore = await vault.read.totalShares();
+      const totalAssetBefore = await vault.read.totalAssets();
+      const totalSharesBefore = await vault.read.totalSupply();
 
       const shareAmount = 4n * 10n ** 18n;
       await vault.write.withdraw(
@@ -179,12 +179,12 @@ describe("Vault", function () {
         { account: user[0].account },
       )
 
-      const totalAsset = await vault.read.totalAsset();
-      const totalShares = await vault.read.totalShares();
-      const userShare = await vault.read.shares([user[0].account.address]);
+      const totalAssets = await vault.read.totalAssets();
+      const totalSupply = await vault.read.totalSupply();
+      const userShare = await vault.read.balanceOf([user[0].account.address]);
 
-      assert.strictEqual(totalAsset, totalAssetBefore - shareAmount);
-      assert.strictEqual(totalShares, totalSharesBefore - shareAmount);
+      assert.strictEqual(totalAssets, totalAssetBefore - shareAmount);
+      assert.strictEqual(totalSupply, totalSharesBefore - shareAmount);
       assert.strictEqual(userShare, depositedAmount - shareAmount);
     })
 
@@ -214,8 +214,8 @@ describe("Vault", function () {
         value: amount4,
       })
 
-      const totalAssetBefore = await vault.read.totalAsset();
-      const totalSharesBefore = await vault.read.totalShares();
+      const totalAssetBefore = await vault.read.totalAssets();
+      const totalSharesBefore = await vault.read.totalSupply();
 
       const withdrawAmount1 = 10n * 10n ** 18n;
       await vault.write.withdraw(
@@ -238,15 +238,15 @@ describe("Vault", function () {
         { account: user[3].account },
       )
 
-      const totalAsset = await vault.read.totalAsset();
-      const totalShares = await vault.read.totalShares();
-      const user1Share = await vault.read.shares([user[0].account.address]);
-      const user2Share = await vault.read.shares([user[1].account.address]);
-      const user3Share = await vault.read.shares([user[2].account.address]);
-      const user4Share = await vault.read.shares([user[3].account.address]);
+      const totalAssets = await vault.read.totalAssets();
+      const totalSupply = await vault.read.totalSupply();
+      const user1Share = await vault.read.balanceOf([user[0].account.address]);
+      const user2Share = await vault.read.balanceOf([user[1].account.address]);
+      const user3Share = await vault.read.balanceOf([user[2].account.address]);
+      const user4Share = await vault.read.balanceOf([user[3].account.address]);
 
-      assert.strictEqual(totalAsset, totalAssetBefore - (withdrawAmount1 + withdrawAmount2 + withdrawAmount3 + withdrawAmount4));
-      assert.strictEqual(totalShares, user1Share + user2Share + user3Share + user4Share);
+      assert.strictEqual(totalAssets, totalAssetBefore - (withdrawAmount1 + withdrawAmount2 + withdrawAmount3 + withdrawAmount4));
+      assert.strictEqual(totalSupply, user1Share + user2Share + user3Share + user4Share);
       assert.strictEqual(user1Share, amount1 - withdrawAmount1);
       assert.strictEqual(user2Share, amount2 - withdrawAmount2);
       assert.strictEqual(user3Share, amount3 - withdrawAmount3);
@@ -269,7 +269,7 @@ describe("Vault", function () {
       )
     })
 
-    it("Should revert if totalAsset is 0", async function () {
+    it("Should revert if totalAssets is 0", async function () {
 
       await assert.rejects(
         vault.write.withdraw(
@@ -294,7 +294,7 @@ describe("Vault", function () {
       )
     })
 
-    it("Should not allow user to withdraw another user's shares", async function () {
+    it("Should not allow user to withdraw another user's balanceOf", async function () {
 
       const depositAmount = 10n * 10n ** 18n;
 
@@ -325,16 +325,16 @@ describe("Vault", function () {
         value: forceSentETH,
       })
 
-      const totalAssetBefore = await vault.read.totalAsset();
-      const totalShares = await vault.read.totalShares();
-      const sharePrice = totalAssetBefore / totalShares;
+      const totalAssetBefore = await vault.read.totalAssets();
+      const totalSupply = await vault.read.totalSupply();
+      const sharePrice = totalAssetBefore / totalSupply;
 
       await vault.write.withdraw(
         [depositedAmount],
         { account: user[0].account },
       )
 
-      const totalAssetAfter = await vault.read.totalAsset();
+      const totalAssetAfter = await vault.read.totalAssets();
 
       assert.strictEqual(totalAssetAfter, 0n);
       assert.strictEqual(sharePrice, 3n);
@@ -366,13 +366,13 @@ describe("Vault", function () {
         [depositA],
         { account: user[0].account }
       );
-      const totalAssetBefore = await vault.read.totalAsset();
+      const totalAssetBefore = await vault.read.totalAssets();
 
       await vault.write.withdraw(
         [depositB],
         { account: user[1].account }
       );
-      const totalAssetAfter = await vault.read.totalAsset();
+      const totalAssetAfter = await vault.read.totalAssets();
 
       assert.strictEqual(totalAssetBefore, 20n * 10n ** 18n);
       assert.strictEqual(totalAssetAfter, 0n);
