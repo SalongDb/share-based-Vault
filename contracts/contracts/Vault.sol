@@ -19,6 +19,8 @@ contract Vault is ERC20, ReentrancyGuard {
     event Withdraw(address indexed receiver, uint256 assets, uint256 shares);
 
     receive() external payable {}
+    uint256 public constant MINIMUM_LIQUIDITY = 1000;
+    address public constant BURN_ADDRESS = 0x000000000000000000000000000000000000dEaD;
 
     // Main functions
     function deposit() external payable {
@@ -28,7 +30,9 @@ contract Vault is ERC20, ReentrancyGuard {
         uint256 sharesToMint;
 
         if (supply == 0) {
-            sharesToMint = msg.value;
+            if ( msg.value <= MINIMUM_LIQUIDITY ) revert ZeroSharesMinted();
+            sharesToMint = msg.value - MINIMUM_LIQUIDITY;
+            _mint(BURN_ADDRESS, MINIMUM_LIQUIDITY);
         } else {
             uint256 assetBefore = address(this).balance - msg.value;
             sharesToMint = (msg.value * supply) / assetBefore;
@@ -47,10 +51,10 @@ contract Vault is ERC20, ReentrancyGuard {
         uint256 supply = totalSupply();
         if (supply == 0) revert NoSharesExist();
 
-        uint256 assets = convertToAssets(shares);
+        uint256 assets = previewMint(shares);
 
         if (assets == 0) revert ZeroDeposit();
-        if (msg.value != assets) revert IncorrectETH();
+        if (msg.value < assets) revert IncorrectETH();
 
         _mint(msg.sender, shares);
 
@@ -64,7 +68,7 @@ contract Vault is ERC20, ReentrancyGuard {
         if (supply == 0) revert NoSharesExist();
         if (balanceOf(msg.sender) < sharesAmount) revert InsufficientShares();
 
-        uint256 totalAsset = address(this).balance;
+        uint256 totalAsset = totalAssets();
         uint256 assetsToReturn = (sharesAmount * totalAsset) / supply;
 
         _burn(msg.sender, sharesAmount);
@@ -100,12 +104,14 @@ contract Vault is ERC20, ReentrancyGuard {
 
     function convertToShares(uint256 assets) public view returns (uint256) {
         uint256 supply = totalSupply();
+        uint256 assetsInVault = totalAssets();
 
         if (supply == 0) {
-            return assets;
+            if (assets <= MINIMUM_LIQUIDITY) return 0;
+            return assets - MINIMUM_LIQUIDITY;
         }
 
-        return (assets * supply) / totalAssets();
+        return (assets * supply) / assetsInVault;
     }
 
     function convertToAssets(uint256 shares) public view returns (uint256) {
@@ -120,6 +126,12 @@ contract Vault is ERC20, ReentrancyGuard {
 
     // Preview Functions
     function previewDeposit(uint256 assets) public view returns (uint256) {
+        uint256 supply = totalSupply();
+
+        if(supply == 0) {
+            if (assets <= MINIMUM_LIQUIDITY) return 0;
+            return assets - MINIMUM_LIQUIDITY;
+        }
         return convertToShares(assets);
     }
 
