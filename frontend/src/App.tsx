@@ -1,16 +1,14 @@
 import './App.css'
+import { useAccount } from 'wagmi';
 import Dashboard from './components/Dashboard';
 import LandingPage from './components/LandingPage'
-import Providers from './providers/WagmiProviders'
 
 function App() {
+  const { isConnected } = useAccount();
 
   return (
     <div>
-      <Providers>
-        {/* <LandingPage></LandingPage> */}
-        <Dashboard></Dashboard>
-      </Providers>
+      {isConnected ? <Dashboard /> : <LandingPage />}
     </div>
   )
 }

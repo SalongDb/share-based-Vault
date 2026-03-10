@@ -1,5 +1,36 @@
 @import "tailwindcss";
 
+@font-face {
+    font-family: Oswald;
+    src: url(../src/assets/fonts/Oswald/Oswald-ExtraLight.ttf);
+    font-weight: 200;
+}
+@font-face {
+    font-family: Oswald;
+    src: url(../src/assets/fonts/Oswald/Oswald-Light.ttf);
+    font-weight: 300;
+}
+@font-face {
+    font-family: Oswald;
+    src: url(../src/assets/fonts/Oswald/Oswald-Regular.ttf);
+    font-weight: 400;
+}
+@font-face {
+    font-family: Oswald;
+    src: url(../src/assets/fonts/Oswald/Oswald-Medium.ttf);
+    font-weight: 500;
+}
+@font-face {
+    font-family: Oswald;
+    src: url(../src/assets/fonts/Oswald/Oswald-SemiBold.ttf);
+    font-weight: 600;
+}
+@font-face {
+    font-family: Oswald;
+    src: url(../src/assets/fonts/Oswald/Oswald-Bold.ttf);
+    font-weight: 700;
+}
+
 @theme {
     --color-c1: #06141B;
     --color-c2: #11212D;
@@ -7,4 +38,6 @@
     --color-c4: #4A5C6A;
     --color-c5: #9BA8AB;
     --color-c6: #CCD0CF;
+
+    --font-oswald: "Oswald", sans-serif;
 }
