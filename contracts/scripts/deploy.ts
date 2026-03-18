@@ -1,17 +1,21 @@
 import { network } from "hardhat";
+import fs from "fs";
 
 async function main() {
   const { viem } = await network.connect();
 
-  console.log("Deploying contract...");
+  const [walletClient] = await viem.getWalletClients();
 
-  const vault = await viem.deployContract("Vault");
+  console.log("Deploying from:", walletClient.account.address);
 
-  console.log("Vault address:", vault.address);
-  console.log("Deployment successful!");
+  const vault = await viem.deployContract("Vault", []);
+
+  console.log("Vault deployed at:", vault.address);
+
+  fs.writeFileSync(
+    "deployments.json",
+    JSON.stringify({ vault: vault.address }, null, 2)
+  );
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+main().catch(console.error);
