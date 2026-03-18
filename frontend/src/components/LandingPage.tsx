@@ -1,27 +1,127 @@
 import NavBar from "./NavBar";
+import { useReadContract } from "wagmi";
+import { vaultContractConfig } from "../contracts/vault";
+import { formatEther } from "viem";
 
 function LandingPage() {
 
+  // -------- SHARE PRICE --------
+  const { data: totalAssets } = useReadContract({
+    ...vaultContractConfig,
+    functionName: "totalAssets",
+  });
+
+  const { data: totalSupply } = useReadContract({
+    ...vaultContractConfig,
+    functionName: "totalSupply",
+  });
+
+  const assets = totalAssets as bigint | undefined;
+  const supply = totalSupply as bigint | undefined;
+
+  const sharePrice =
+    assets && supply && supply > 0n
+      ? (Number(formatEther(assets)) /
+          Number(formatEther(supply))).toFixed(4)
+      : "1.0000";
+
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-c1 via-c3 to-c6">
-      <NavBar></NavBar>
-      <div className="flex px-25 justify-between font-oswald font-light">
-        <div>
-        <h1 className="text-[100px] min-h-screen flex  items-center text-c6 font-semibold leading-relaxed">
-        TRADE. <br/> MULTIPLY. <br/> MAX WITHDRAW. 
-        </h1>
-      </div>
-      <div className="text-[100px] min-h-screen flex  flex-col items-end justify-center text-c6 font-semibold leading-relaxed">
-        <h1>SHARE PRICE</h1>
-        <h1>PIGGYvault</h1>
-        <h1>TRADE</h1>
-      </div>
-      </div>
-      <div className="h-[68px] bg-c1">
+    <div className="w-full h-screen overflow-hidden bg-gradient-to-br from-c1 via-c3 to-c6 text-c6 font-oswald flex flex-col">
+
+      <NavBar />
+
+      {/* MAIN */}
+      <div className="flex flex-1 px-20 items-center justify-between">
+
+        {/* LEFT */}
+        <div className="max-w-xl">
+
+          <h1 className="text-[85px] font-semibold leading-tight">
+            TRADE. <br /> MULTIPLY. <br /> MAX WITHDRAW.
+          </h1>
+
+          <p className="mt-6 text-c5 text-lg leading-relaxed">
+            PiggyVault is a smart DeFi vault where your ETH grows automatically.
+            Deposit, earn yield, and withdraw more than you started with — all on-chain.
+          </p>
+
+          {/* CONNECT HINT */}
+          <div className="mt-10">
+            <p className="text-c4 text-lg">
+              Connect your wallet to start →
+            </p>
+          </div>
+
+        </div>
+
+        {/* RIGHT */}
+        <div className="flex flex-col items-end text-right">
+
+          <p className="text-c5 text-lg tracking-widest mb-2">
+            CURRENT SHARE PRICE
+          </p>
+
+          <h1 className="text-[90px] font-bold text-c6 leading-none drop-shadow-[0_0_20px_rgba(204,208,207,0.25)]">
+            {sharePrice}
+          </h1>
+
+          <p className="text-c4 text-xl mb-8">ETH per Share</p>
+
+          <h1 className="text-[80px] font-semibold text-c5 leading-tight">
+            PIGGYvault
+          </h1>
+
+          <p className="text-c4 text-lg mt-4 max-w-sm">
+            A smart yield vault designed to maximize your returns with seamless deposits and withdrawals.
+          </p>
+
+        </div>
 
       </div>
+
+      {/* FEATURES */}
+      <div className="flex justify-center pb-10">
+
+        <div className="flex gap-16 text-center">
+
+          <div className="flex flex-col items-center hover:scale-105 transition">
+            <h2 className="text-3xl font-semibold text-c6 tracking-wide">
+              Smart Yield
+            </h2>
+            <p className="text-c4 mt-2 text-lg">
+              Auto-optimized returns
+            </p>
+          </div>
+
+          <div className="flex flex-col items-center hover:scale-105 transition">
+            <h2 className="text-3xl font-semibold text-c6 tracking-wide">
+              Instant Liquidity
+            </h2>
+            <p className="text-c4 mt-2 text-lg">
+              No lockups, withdraw anytime
+            </p>
+          </div>
+
+          <div className="flex flex-col items-center hover:scale-105 transition">
+            <h2 className="text-3xl font-semibold text-c6 tracking-wide">
+              Fully On-Chain
+            </h2>
+            <p className="text-c4 mt-2 text-lg">
+              Transparent & secure
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+
+      {/* FOOTER */}
+      <div className="text-center text-c4 text-sm pb-4">
+        © 2026 PiggyVault
+      </div>
+
     </div>
-  )
+  );
 }
 
 export default LandingPage;

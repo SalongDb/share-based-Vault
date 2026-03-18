@@ -16,13 +16,11 @@ function Dashboard() {
   const [withdrawShares, setWithdrawShares] = useState("");
 
   //getting totalAssets and totalSupply from contract
-  const { data: totalAssets, error } = useReadContract({
-  ...vaultContractConfig,
-  functionName: "totalAssets",
-});
+  const { data: totalAssets } = useReadContract({
+    ...vaultContractConfig,
+    functionName: "totalAssets",
+  });
 
-console.log("totalAssets:", totalAssets);
-console.log("error:", error);
   const { data: totalSupply } = useReadContract({
     ...vaultContractConfig,
     functionName: "totalSupply"
@@ -34,6 +32,7 @@ console.log("error:", error);
     functionName: "balanceOf",
     args: [address!],
   });
+  
   const { data: userAssetsFetched } = useReadContract({
     ...vaultContractConfig,
     functionName: "convertToAssets",
@@ -75,9 +74,9 @@ console.log("error:", error);
   const userAssets = userAssetsFetched as bigint | undefined;
 
   //formatting to Ether
-  const sharePrice = assets && supply && supply > 0n ? Number(formatEther(assets)) / Number(formatEther(supply)) : 1;
-  const formattedUserShares = userShares ? formatEther(userShares) : 0;
-  const formattedUserAssets = userAssets ? formatEther(userAssets) : 0;
+  const sharePrice = assets && supply && supply > 0n ? (Number(formatEther(assets)) / Number(formatEther(supply))).toFixed(4) : "1.0000";
+  const formattedUserShares = userShares ? Number(formatEther(userShares)).toFixed(4) : 0;
+  const formattedUserAssets = userAssets ? Number(formatEther(userAssets)).toFixed(4) : 0;
 
   const { writeContractAsync } = useWriteContract();
 
@@ -104,116 +103,185 @@ console.log("error:", error);
     }
   }
 
+  async function withdraw() {
+  try {
+    // Withdraw using ETH input
+    if (withdrawETH) {
+      await writeContractAsync({
+        ...vaultContractConfig,
+        functionName: "withdraw",
+        args: [withdrawETHWei], // pass as argument, NOT value
+      });
+    }
+
+    // Withdraw using shares input
+    if (withdrawShares) {
+      await writeContractAsync({
+        ...vaultContractConfig,
+        functionName: "redeem",
+        args: [withdrawSharesWei],
+      });
+    }
+
+  } catch (err) {
+    console.log("Withdraw error:", err);
+  }
+}
+
   return (
-    <div className="w-full min-h-screen 
-                    bg-gradient-to-br from-c1  
-                    via-c3 to-c6 pt-30 px-24">
+    <div className="w-full min-h-screen bg-gradient-to-br from-c1 via-c3 to-c6 pt-24 px-10 text-c6 font-oswald">
 
-      <NavBar></NavBar>
+      <NavBar />
 
-      <div className="flex justify-center pb-3 text-c6">
-        VaultAssets : {assets ? formatEther(assets) : "0"} ETH
+      {/* Header */}
+      <div className="flex justify-center my-8">
+        <div className="bg-c2/40 backdrop-blur-lg px-10 py-6 rounded-2xl shadow-xl border border-c4/20">
+          <h1 className="text-4xl font-medium tracking-wide text-c5">
+            Share Price
+          </h1>
+          <p className="text-5xl font-semibold mt-2 text-c6">
+            {sharePrice} ETH
+          </p>
+        </div>
       </div>
 
-      <div className="flex justify-between 
-                      items-center gap-2 h-[80vh] 
-                      bg-c5/10 backdrop-blur-md
-                      rounded-3xl shadow-lg text-c6 
-                      p-2 font-oswald font-light">
+      {/* Main Layout */}
+      <div className="flex gap-8">
 
-        <div className="flex flex-col items-start 
-                        h-[78vh] bg-c2/10 rounded-3xl 
-                        w-[45vw] gap-5 px-6">
+        {/* LEFT PANEL */}
+        <div className="w-1/2 bg-c2/40 backdrop-blur-lg p-8 rounded-3xl shadow-xl border border-c4/20 flex flex-col gap-10">
 
-          <span className="text-[70px]">Share Price : {sharePrice} ETH </span>
-          <div className="text-[20px]">
-            <span className="text-[40px]">Deposit</span>
-            <div>
-              <span>Amount : </span>
-              <input
-                value={depositETH}
-                onChange={(e) => {
-                  setDepositETH(e.target.value);
-                  setDepositShares("");
-                }}
-                placeholder="ETH"
-              />
-              <input
-                value={previewDepositShares ? formatEther(previewDepositShares as bigint) : ""}
-                readOnly
-                placeholder="Shares"
-              />
+          {/* BUY */}
+          <div>
+            <h2 className="text-3xl font-medium mb-4 text-green-400">Buy</h2>
+
+            <div className="space-y-4">
+              <div className="flex gap-3">
+                <input
+                  className="w-full px-4 py-3 rounded-lg bg-c1/60 border border-c4/20 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-c4"
+                  value={depositETH}
+                  onChange={(e) => {
+                    setDepositETH(e.target.value);
+                    setDepositShares("");
+                  }}
+                  placeholder="ETH"
+                />
+                <input
+                  className="w-full px-4 py-3 rounded-lg bg-c1/40 border border-c4/10 text-c5"
+                  value={previewDepositShares ? formatEther(previewDepositShares as bigint) : ""}
+                  readOnly
+                  placeholder="Shares"
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <input
+                  className="w-full px-4 py-3 rounded-lg bg-c1/60 border border-c4/20 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-c4"
+                  value={depositShares}
+                  onChange={(e) => {
+                    setDepositShares(e.target.value);
+                    setDepositETH("");
+                  }}
+                  placeholder="Shares"
+                />
+                <input
+                  className="w-full px-4 py-3 rounded-lg bg-c1/40 border border-c4/10 text-c5"
+                  value={previewMintAssets ? formatEther(previewMintAssets as bigint) : ""}
+                  readOnly
+                  placeholder="ETH"
+                />
+              </div>
+
+              <button
+                className="w-full py-3 rounded-lg bg-green-500 hover:bg-green-600 transition font-semibold shadow-lg"
+                onClick={deposit}
+              >
+                Deposit
+              </button>
             </div>
-            <div>
-              <span>Shares : </span>
-              <input
-                value={depositShares}
-                onChange={(e) => {
-                  setDepositShares(e.target.value);
-                  setDepositETH("");
-                }}
-                placeholder="Shares"
-              />
-              <input
-                value={previewMintAssets ? formatEther(previewMintAssets as bigint) : ""}
-                readOnly
-                placeholder="ETH"
-              />
-            </div>
-            <button className="border px-3 rounded" onClick={() => deposit()}>Deposit</button>
           </div>
-          <span>OR</span>
-          <div className="text-[20px]">
-            <span className="text-[40px]">Withdraw</span>
-            <div>
-              <span>Amount : </span>
-              <input
-                value={withdrawETH}
-                onChange={(e) => {
-                  setWithdrawETH(e.target.value);
-                  setWithdrawShares("");
-                }}
-                placeholder="ETH"
-              />
-              <input
-                value={previewWithdrawShares ? formatEther(previewWithdrawShares as bigint) : ""}
-                readOnly
-                placeholder="Shares"
-              />
-            </div>
-            <div>
-              <span>Shares : </span>
-              <input
-                value={withdrawShares}
-                onChange={(e) => {
-                  setWithdrawShares(e.target.value);
-                  setWithdrawETH("");
-                }}
-                placeholder="Shares"
-              />
-              <input
-                value={previewRedeemAssets ? formatEther(previewRedeemAssets as bigint) : ""}
-                readOnly
-                placeholder="ETH"
-              />
+
+          {/* SELL */}
+          <div>
+            <h2 className="text-3xl font-medium mb-4 text-red-400">Sell</h2>
+
+            <div className="space-y-4">
+              <div className="flex gap-3">
+                <input
+                  className="w-full px-4 py-3 rounded-lg bg-c1/60 border border-c4/20 focus:outline-none focus:ring-2 focus:ring-red-400 placeholder:text-c4"
+                  value={withdrawETH}
+                  onChange={(e) => {
+                    setWithdrawETH(e.target.value);
+                    setWithdrawShares("");
+                  }}
+                  placeholder="ETH"
+                />
+                <input
+                  className="w-full px-4 py-3 rounded-lg bg-c1/40 border border-c4/10 text-c5"
+                  value={previewWithdrawShares ? formatEther(previewWithdrawShares as bigint) : ""}
+                  readOnly
+                  placeholder="Shares"
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <input
+                  className="w-full px-4 py-3 rounded-lg bg-c1/60 border border-c4/20 focus:outline-none focus:ring-2 focus:ring-red-400 placeholder:text-c4"
+                  value={withdrawShares}
+                  onChange={(e) => {
+                    setWithdrawShares(e.target.value);
+                    setWithdrawETH("");
+                  }}
+                  placeholder="Shares"
+                />
+                <input
+                  className="w-full px-4 py-3 rounded-lg bg-c1/40 border border-c4/10 text-c5"
+                  value={previewRedeemAssets ? formatEther(previewRedeemAssets as bigint) : ""}
+                  readOnly
+                  placeholder="ETH"
+                />
+              </div>
+
+              <button
+                className="w-full py-3 rounded-lg bg-red-500 hover:bg-red-600 transition font-semibold shadow-lg"
+                onClick={withdraw}
+              >
+                Withdraw
+              </button>
             </div>
           </div>
         </div>
-        <div className="flex flex-col h-[78vh] bg-c2/10 rounded-3xl w-[45vw] text-[20px] gap-5 px-6">
-          <h1 className="text-[70px]">Account Info</h1>
-          <div>
-            Total Assets : {formattedUserAssets} ETH
+
+        {/* RIGHT PANEL */}
+        <div className="w-1/2 bg-c2/40 backdrop-blur-lg p-8 rounded-3xl shadow-xl border border-c4/20 flex flex-col gap-6">
+
+          <h1 className="text-4xl font-medium mb-4 text-c5">Account</h1>
+
+          <div className="bg-c1/40 p-5 rounded-xl border border-c4/20">
+            <p className="text-c4">Total Assets</p>
+            <p className="text-2xl font-semibold mt-1 text-c6">
+              {formattedUserAssets} ETH
+            </p>
           </div>
-          <div>
-            Total Shares : {formattedUserShares} xETH
+
+          <div className="bg-c1/40 p-5 rounded-xl border border-c4/20">
+            <p className="text-c4">Total Shares</p>
+            <p className="text-2xl font-semibold mt-1 text-c6">
+              {formattedUserShares} xETH
+            </p>
           </div>
-          <div>
-            Total Deposit : {formattedUserAssets} ETH
+
+          <div className="bg-c1/40 p-5 rounded-xl border border-c4/20">
+            <p className="text-c4">Your Deposit</p>
+            <p className="text-2xl font-semibold mt-1 text-c6">
+              {formattedUserAssets} ETH
+            </p>
           </div>
+
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default Dashboard;
