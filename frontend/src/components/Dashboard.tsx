@@ -1,11 +1,10 @@
-import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import NavBar from "./NavBar";
-import { vaultContractConfig } from "../contracts/vault";
-import { formatEther, parseEther } from "viem";
+import { formatEther} from "viem";
 import { useState } from "react";
+import { useVault } from "../hooks/useVault";
+import { useVaultStats } from "../hooks/useVaultStats";
 
 function Dashboard() {
-  const { address } = useAccount();
 
   //state vcariables for deposit
   const [depositETH, setDepositETH] = useState("");
@@ -15,126 +14,24 @@ function Dashboard() {
   const [withdrawETH, setWithdrawETH] = useState("");
   const [withdrawShares, setWithdrawShares] = useState("");
 
-  //getting totalAssets and totalSupply from contract
-  const { data: totalAssets } = useReadContract({
-    ...vaultContractConfig,
-    functionName: "totalAssets",
-  });
+  const { sharePrice } = useVaultStats();
 
-  const { data: totalSupply } = useReadContract({
-    ...vaultContractConfig,
-    functionName: "totalSupply"
-  });
+  const {
+  formattedUserShares,
+  formattedUserAssets,
+  previewDepositShares,
+  previewMintAssets,
+  previewRedeemAssets,
+  previewWithdrawShares,
+  deposit,
+  withdraw
+} = useVault(
+  depositETH,
+  depositShares,
+  withdrawETH,
+  withdrawShares
+);
 
-  //getting total existing shares and assets of user
-  const { data: userSharesFetched } = useReadContract({
-    ...vaultContractConfig,
-    functionName: "balanceOf",
-    args: [address!],
-  });
-
-  const { data: userAssetsFetched } = useReadContract({
-    ...vaultContractConfig,
-    functionName: "convertToAssets",
-    args: [userSharesFetched ?? 0n],
-  });
-
-  //converting deposits and withdrawls to bigint
-  const depositETHWei = safeParseEther(depositETH);
-  const depositSharesWei = safeParseEther(depositShares);
-  const withdrawETHWei = safeParseEther(withdrawETH);
-  const withdrawSharesWei = safeParseEther(withdrawShares);
-
-  //previewing the required ETH or shares for deposit or withdrawl
-  const { data: previewDepositShares } = useReadContract({
-    ...vaultContractConfig,
-    functionName: "previewDeposit",
-    args: [depositETHWei],
-  });
-  const { data: previewMintAssets } = useReadContract({
-    ...vaultContractConfig,
-    functionName: "previewMint",
-    args: [depositSharesWei],
-  });
-  const { data: previewRedeemAssets } = useReadContract({
-    ...vaultContractConfig,
-    functionName: "previewRedeem",
-    args: [withdrawSharesWei],
-  });
-  const { data: previewWithdrawShares } = useReadContract({
-    ...vaultContractConfig,
-    functionName: "previewWithdraw",
-    args: [withdrawETHWei],
-  });
-
-  //defining as bigint
-  const assets = totalAssets as bigint | undefined;
-  const supply = totalSupply as bigint | undefined;
-  const userShares = userSharesFetched as bigint | undefined;
-  const userAssets = userAssetsFetched as bigint | undefined;
-
-  //formatting to Ether
-  const sharePrice = assets && supply && supply > 0n ? (Number(formatEther(assets)) / Number(formatEther(supply))).toFixed(4) : "1.0000";
-  const formattedUserShares = userShares ? Number(formatEther(userShares)).toFixed(4) : 0;
-  const formattedUserAssets = userAssets ? Number(formatEther(userAssets)).toFixed(4) : 0;
-
-  const { writeContractAsync } = useWriteContract();
-
-  async function deposit() {
-    try {
-      if (depositETH) {
-        await writeContractAsync({
-          ...vaultContractConfig,
-          functionName: "deposit",
-          value: depositETHWei
-        });
-      }
-
-      if (depositShares) {
-        await writeContractAsync({
-          ...vaultContractConfig,
-          functionName: "mint",
-          args: [depositSharesWei],
-          value: previewMintAssets as bigint
-        });
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  async function withdraw() {
-    try {
-      // Withdraw using ETH input
-      if (withdrawETH) {
-        await writeContractAsync({
-          ...vaultContractConfig,
-          functionName: "withdraw",
-          args: [withdrawETHWei], // pass as argument, NOT value
-        });
-      }
-
-      // Withdraw using shares input
-      if (withdrawShares) {
-        await writeContractAsync({
-          ...vaultContractConfig,
-          functionName: "redeem",
-          args: [withdrawSharesWei],
-        });
-      }
-
-    } catch (err) {
-      console.log("Withdraw error:", err);
-    }
-  }
-
-  function safeParseEther(value: string): bigint {
-    try {
-      return value ? parseEther(value) : 0n;
-    } catch {
-      return 0n;
-    }
-  }
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-c1 via-c3 to-c6 pt-24 px-10 text-c6 font-oswald">
 

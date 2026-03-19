@@ -1,29 +1,8 @@
 import NavBar from "./NavBar";
-import { useReadContract } from "wagmi";
-import { vaultContractConfig } from "../contracts/vault";
-import { formatEther } from "viem";
+import { useVaultStats } from "../hooks/useVaultStats";
 
 function LandingPage() {
-
-  // -------- SHARE PRICE --------
-  const { data: totalAssets } = useReadContract({
-    ...vaultContractConfig,
-    functionName: "totalAssets",
-  });
-
-  const { data: totalSupply } = useReadContract({
-    ...vaultContractConfig,
-    functionName: "totalSupply",
-  });
-
-  const assets = totalAssets as bigint | undefined;
-  const supply = totalSupply as bigint | undefined;
-
-  const sharePrice =
-    assets && supply && supply > 0n
-      ? (Number(formatEther(assets)) /
-          Number(formatEther(supply))).toFixed(4)
-      : "1.0000";
+  const {sharePrice} = useVaultStats();
 
   return (
     <div className="w-full h-screen overflow-hidden bg-gradient-to-br from-c1 via-c3 to-c6 text-c6 font-oswald flex flex-col">

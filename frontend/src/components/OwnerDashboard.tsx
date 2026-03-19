@@ -1,64 +1,13 @@
-import { formatEther, parseEther } from "viem";
-import { useReadContract, useWriteContract } from "wagmi";
 import NavBar from "./NavBar";
-import { vaultContractConfig } from "../contracts/vault";
 import { useState } from "react";
+import { useOwner } from "../hooks/useOwner";
+import { useVaultStats } from "../hooks/useVaultStats";
 
 function OwnerDashboard() {
-    const [withdrawAmount,setWithdrawAmount] = useState("");
+    const [withdrawAmount, setWithdrawAmount] = useState("");
+    const { sharePrice,formattedAssets,formattedSupply } = useVaultStats();
+    const { formattedFees,withdraw } = useOwner(withdrawAmount);
 
-    const { data: totalAssets } = useReadContract({
-        ...vaultContractConfig,
-        functionName: "totalAssets",
-    });
-
-    const { data: totalSupply } = useReadContract({
-        ...vaultContractConfig,
-        functionName: "totalSupply",
-    });
-
-    const { data: feeBalance } = useReadContract({
-        ...vaultContractConfig,
-        functionName: "feeBalance",
-    });
-
-    const assets = totalAssets as bigint | undefined;
-  const supply = totalSupply as bigint | undefined;
-
-    const formattedAssets = totalAssets
-        ? Number(formatEther(totalAssets as bigint)).toFixed(4)
-        : "0";
-
-    const formattedSupply = totalSupply
-        ? Number(formatEther(totalSupply as bigint)).toFixed(4)
-        : "0";
-
-    const formattedFees = feeBalance
-        ? Number(formatEther(feeBalance as bigint)).toFixed(4)
-        : "0";
-
-
-
-    const sharePrice = assets && supply && supply > 0n ? (Number(formatEther(assets)) / Number(formatEther(supply))).toFixed(4) : "1.0000";
-
-    const { writeContractAsync } = useWriteContract();
-
-    const withdrawAmountWei = withdrawAmount
-  ? parseEther(withdrawAmount)
-  : 0n;
-
-    async function withdraw() {
-        try {
-            await writeContractAsync({
-                ...vaultContractConfig,
-                functionName: "withdrawFees",
-                args: [withdrawAmountWei], // pass as argument, NOT value
-            });
-
-        } catch (err) {
-            console.log("Withdraw error:", err);
-        }
-    }
     return (
         <div className="w-full min-h-screen bg-gradient-to-br from-c1 via-c3 to-c6 pt-24 px-10 text-c6 font-oswald">
 
@@ -71,7 +20,7 @@ function OwnerDashboard() {
                         Share Price
                     </h1>
                     <p className="text-5xl font-semibold mt-2 text-c6">
-                       {sharePrice} ETH
+                        {sharePrice} ETH
                     </p>
                 </div>
             </div>
