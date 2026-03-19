@@ -65,13 +65,13 @@ function LandingPage() {
             {sharePrice}
           </h1>
 
-          <p className="text-c4 text-xl mb-8">ETH per Share</p>
+          <p className="text-c5 text-xl mb-8">ETH per Share</p>
 
           <h1 className="text-[80px] font-semibold text-c5 leading-tight">
             PIGGYvault
           </h1>
 
-          <p className="text-c4 text-lg mt-4 max-w-sm">
+          <p className="text-c5/70 text-lg mt-4 max-w-sm">
             A smart yield vault designed to maximize your returns with seamless deposits and withdrawals.
           </p>
 
@@ -88,7 +88,7 @@ function LandingPage() {
             <h2 className="text-3xl font-semibold text-c6 tracking-wide">
               Smart Yield
             </h2>
-            <p className="text-c4 mt-2 text-lg">
+            <p className="text-c6/40 mt-2 text-lg">
               Auto-optimized returns
             </p>
           </div>
@@ -97,7 +97,7 @@ function LandingPage() {
             <h2 className="text-3xl font-semibold text-c6 tracking-wide">
               Instant Liquidity
             </h2>
-            <p className="text-c4 mt-2 text-lg">
+            <p className="text-c6/20 mt-2 text-lg">
               No lockups, withdraw anytime
             </p>
           </div>
@@ -106,7 +106,7 @@ function LandingPage() {
             <h2 className="text-3xl font-semibold text-c6 tracking-wide">
               Fully On-Chain
             </h2>
-            <p className="text-c4 mt-2 text-lg">
+            <p className="text-c2/20 mt-2 text-lg">
               Transparent & secure
             </p>
           </div>
@@ -116,7 +116,7 @@ function LandingPage() {
       </div>
 
       {/* FOOTER */}
-      <div className="text-center text-c4 text-sm pb-4">
+      <div className="text-center text-c5 text-sm pb-4">
         © 2026 PiggyVault
       </div>
 

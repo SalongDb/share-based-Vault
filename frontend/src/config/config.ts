@@ -1,12 +1,12 @@
 import { createConfig, http, injected } from 'wagmi';
-import { localhost} from 'wagmi/chains';
+import { sepolia} from 'wagmi/chains';
 
 export const config = createConfig({
-    chains: [localhost],
+    chains: [sepolia],
     connectors: [
         injected(),
     ],
     transports: {
-        [localhost.id]: http("http://127.0.0.1:8545"),
+        [sepolia.id]: http(import.meta.env.VITE_SEPOLIA_URL),
     },
 })

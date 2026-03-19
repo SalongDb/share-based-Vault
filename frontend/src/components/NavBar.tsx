@@ -1,4 +1,4 @@
-import { useAccount, useConnect, useDisconnect} from "wagmi";
+import { useAccount, useConnect, useDisconnect } from "wagmi";
 
 function NavBar() {
     const { connect, connectors } = useConnect();
@@ -12,20 +12,18 @@ function NavBar() {
                         bg-c5/10 backdrop-blur-md
                         rounded-3xl shadow-lg text-c6 font-medium text-lg">
             <a>PIGGYvault</a>
-            {isConnected ? (
+            {isConnected &&
                 <span>
-                    {address?.slice(0,6)}....{address?.slice(-4)}
+                    {address?.slice(0, 6)}....{address?.slice(-4)}
                 </span>
-            ) : (
-                <span>
-                    address...
-                </span>
-            )}
+            }
 
             {!isConnected ? (
-                <button onClick={() => connect({connector: connectors[0]})}>Connect</button>
+                <button className="bg-transparent hover:bg-c4  px-3 py-1 rounded-3xl" 
+                onClick={() => connect({ connector: connectors[0] })}>Connect</button>
             ) : (
-                <button onClick={() => disconnect()}>Disconnect</button>
+                <button className="bg-transparent hover:bg-c4  px-3 py-1 rounded-3xl"  
+                onClick={() => disconnect()}>Disconnect</button>
             )}
         </nav>
     )
