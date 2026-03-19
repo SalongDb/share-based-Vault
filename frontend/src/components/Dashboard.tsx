@@ -32,7 +32,7 @@ function Dashboard() {
     functionName: "balanceOf",
     args: [address!],
   });
-  
+
   const { data: userAssetsFetched } = useReadContract({
     ...vaultContractConfig,
     functionName: "convertToAssets",
@@ -40,10 +40,10 @@ function Dashboard() {
   });
 
   //converting deposits and withdrawls to bigint
-  const depositETHWei = depositETH ? parseEther(depositETH) : 0n;
-  const depositSharesWei = depositShares ? parseEther(depositShares) : 0n;
-  const withdrawETHWei = withdrawETH ? parseEther(withdrawETH) : 0n;
-  const withdrawSharesWei = withdrawShares ? parseEther(withdrawShares) : 0n;
+  const depositETHWei = safeParseEther(depositETH);
+  const depositSharesWei = safeParseEther(depositShares);
+  const withdrawETHWei = safeParseEther(withdrawETH);
+  const withdrawSharesWei = safeParseEther(withdrawShares);
 
   //previewing the required ETH or shares for deposit or withdrawl
   const { data: previewDepositShares } = useReadContract({
@@ -104,30 +104,37 @@ function Dashboard() {
   }
 
   async function withdraw() {
-  try {
-    // Withdraw using ETH input
-    if (withdrawETH) {
-      await writeContractAsync({
-        ...vaultContractConfig,
-        functionName: "withdraw",
-        args: [withdrawETHWei], // pass as argument, NOT value
-      });
-    }
+    try {
+      // Withdraw using ETH input
+      if (withdrawETH) {
+        await writeContractAsync({
+          ...vaultContractConfig,
+          functionName: "withdraw",
+          args: [withdrawETHWei], // pass as argument, NOT value
+        });
+      }
 
-    // Withdraw using shares input
-    if (withdrawShares) {
-      await writeContractAsync({
-        ...vaultContractConfig,
-        functionName: "redeem",
-        args: [withdrawSharesWei],
-      });
-    }
+      // Withdraw using shares input
+      if (withdrawShares) {
+        await writeContractAsync({
+          ...vaultContractConfig,
+          functionName: "redeem",
+          args: [withdrawSharesWei],
+        });
+      }
 
-  } catch (err) {
-    console.log("Withdraw error:", err);
+    } catch (err) {
+      console.log("Withdraw error:", err);
+    }
   }
-}
 
+  function safeParseEther(value: string): bigint {
+    try {
+      return value ? parseEther(value) : 0n;
+    } catch {
+      return 0n;
+    }
+  }
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-c1 via-c3 to-c6 pt-24 px-10 text-c6 font-oswald">
 
