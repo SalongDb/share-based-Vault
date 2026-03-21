@@ -6,7 +6,7 @@ A decentralized ETH vault where users can deposit ETH and receive shares, and wi
 
 ## 🔗 Live Demo
 
-👉 Frontend: https://your-vercel-link.vercel.app
+👉 Frontend: https://share-based-vault.vercel.app
 
 👉 Contract (Sepolia): https://sepolia.etherscan.io/address/0x66BC1259b302f1FC46990bfBB665609f41A66e3b
 
@@ -14,13 +14,14 @@ A decentralized ETH vault where users can deposit ETH and receive shares, and wi
 
 ## 📸 Screenshots
 
-(Add your screenshots here before pushing)
+### 🖥️ Landing Page
+![Landing Page](./screenshots/landingPage.png)
 
-Dashboard
+### 💱 User Dashboard
+![User Dashboard](./screenshots/userDashboard.png)
 
-Owner Dashboard
-
-Deposit / Withdraw UI
+### 👑 Owner Dashboard
+![Owner Dashboard](./screenshots/ownerDashboard.png)
 
 ---
 
@@ -118,7 +119,7 @@ project-root/
 
 ### 1. Clone repo
 
-git clone <your-repo-url>
+git clone <https://github.com/SalongDb/share-based-Vault>
 cd project-root
 
 ### 2. Install dependencies
