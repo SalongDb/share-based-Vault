@@ -1,8 +1,10 @@
 import type { Abi } from "viem";
 
+// Vault contract configuration (address + ABI for interaction)
 export const VAULT_CONTRACT_ADDRESS = "0x66bc1259b302f1fc46990bfbb665609f41a66e3b" as `0x${string}`;
 
 export const VAULT_CONTRACT_ABI: Abi = [
+  // Contract ABI (functions, events used by frontend)
     {
       "inputs": [],
       "stateMutability": "nonpayable",

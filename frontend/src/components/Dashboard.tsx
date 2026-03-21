@@ -6,16 +6,26 @@ import { useVaultStats } from "../hooks/useVaultStats";
 
 function Dashboard() {
 
-  //state vcariables for deposit
+  // User input states (deposit + withdraw flows)
   const [depositETH, setDepositETH] = useState("");
   const [depositShares, setDepositShares] = useState("");
-
-  //state variables for withdraw
   const [withdrawETH, setWithdrawETH] = useState("");
   const [withdrawShares, setWithdrawShares] = useState("");
 
-  const { sharePrice, isLoading, isError } = useVaultStats();
+  // Global vault stats (share price)
+  const { sharePrice, isLoading, isError, refetchStats } = useVaultStats();
 
+  // Clean input fiels after transactions
+  const resetDeposit = () => {
+    setDepositETH("");
+    setDepositShares("");
+  };
+  const resetWithdraw = () => {
+    setWithdrawETH("");
+    setWithdrawShares("");
+  };
+
+  // Core vault logic (reads + writes + previews + user data)
   const {
     formattedUserShares,
     formattedUserAssets,
@@ -34,6 +44,9 @@ function Dashboard() {
     depositShares,
     withdrawETH,
     withdrawShares,
+    resetDeposit,
+    resetWithdraw,
+    refetchStats
   );
 
   return (
@@ -41,7 +54,7 @@ function Dashboard() {
 
       <NavBar />
 
-      {/* Header */}
+      {/* Share price display with loading + error handling */}
       <div className="flex justify-center my-8">
         <div className="bg-c2/40 backdrop-blur-lg px-10 py-6 rounded-2xl shadow-xl border border-c4/20">
           <h1 className="text-4xl font-medium tracking-wide text-c5">
@@ -59,25 +72,26 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* Main Layout */}
       <div className="flex gap-8">
 
-        {/* LEFT PANEL */}
+        {/* LEFT PANEL → Deposit + Withdraw */}
         <div className="w-1/2 bg-c2/40 backdrop-blur-lg p-8 rounded-3xl shadow-xl border border-c4/20 flex flex-col gap-10">
 
-          {/* BUY */}
+          {/* BUY (Deposit) */}
           <div>
             <h2 className="text-3xl font-medium mb-4 text-green-400">Buy</h2>
 
             <div className="space-y-4">
+
+              {/* ETH → Shares */}
               <div className="flex gap-3">
                 <input
-                  disabled={isDepositing}
+                  disabled={isDepositing} // prevent input during tx
                   className="w-full px-4 py-3 rounded-lg bg-c1/60 border border-c4/20 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-c4"
                   value={depositETH}
                   onChange={(e) => {
                     setDepositETH(e.target.value);
-                    setDepositShares("");
+                    setDepositShares(""); // mutually exclusive inputs
                   }}
                   placeholder="ETH"
                 />
@@ -89,6 +103,7 @@ function Dashboard() {
                 />
               </div>
 
+              {/* Shares → ETH */}
               <div className="flex gap-3">
                 <input
                   disabled={isDepositing}
@@ -96,7 +111,7 @@ function Dashboard() {
                   value={depositShares}
                   onChange={(e) => {
                     setDepositShares(e.target.value);
-                    setDepositETH("");
+                    setDepositETH(""); // mutually exclusive inputs
                   }}
                   placeholder="Shares"
                 />
@@ -108,8 +123,9 @@ function Dashboard() {
                 />
               </div>
 
+              {/* Deposit action */}
               <button
-                disabled={isDepositing || (!depositETH && !depositShares)}
+                disabled={isDepositing || (!depositETH && !depositShares)} // disable invalid action
                 className={`w-full py-3 rounded-lg font-semibold shadow-lg ${isDepositing ? "bg-gray-400" : "bg-green-500 hover:bg-green-600"} `}
                 onClick={deposit}
               >
@@ -118,11 +134,13 @@ function Dashboard() {
             </div>
           </div>
 
-          {/* SELL */}
+          {/* SELL (Withdraw) */}
           <div>
             <h2 className="text-3xl font-medium mb-4 text-red-400">Sell</h2>
 
             <div className="space-y-4">
+
+              {/* ETH → Shares */}
               <div className="flex gap-3">
                 <input
                   disabled={isWithdrawing}
@@ -142,6 +160,7 @@ function Dashboard() {
                 />
               </div>
 
+              {/* Shares → ETH */}
               <div className="flex gap-3">
                 <input
                   disabled={isWithdrawing}
@@ -161,6 +180,7 @@ function Dashboard() {
                 />
               </div>
 
+              {/* Withdraw action */}
               <button
                 disabled={isWithdrawing || (!withdrawETH && !withdrawShares)}
                 className={`w-full py-3 rounded-lg font-semibold shadow-lg ${isWithdrawing ? "bg-gray-400" : "bg-red-500 hover:bg-red-600"}`}
@@ -172,11 +192,12 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* RIGHT PANEL */}
+        {/* RIGHT PANEL → User balances */}
         <div className="w-1/2 bg-c2/40 backdrop-blur-lg p-8 rounded-3xl shadow-xl border border-c4/20 flex flex-col gap-6">
 
           <h1 className="text-4xl font-medium mb-4 text-c5">Account</h1>
 
+          {/* User total assets */}
           <div className="bg-c1/40 p-5 rounded-xl border border-c4/20">
             <p className="text-c4">Total Assets</p>
             <p className="text-2xl font-semibold mt-1 text-c6">
@@ -188,6 +209,7 @@ function Dashboard() {
             </p>
           </div>
 
+          {/* User shares */}
           <div className="bg-c1/40 p-5 rounded-xl border border-c4/20">
             <p className="text-c4">Total Shares</p>
             <p className="text-2xl font-semibold mt-1 text-c6">
@@ -199,6 +221,7 @@ function Dashboard() {
             </p>
           </div>
 
+          {/* Redundant but useful UX: user's deposit value */}
           <div className="bg-c1/40 p-5 rounded-xl border border-c4/20">
             <p className="text-c4">Your Deposit</p>
             <p className="text-2xl font-semibold mt-1 text-c6">

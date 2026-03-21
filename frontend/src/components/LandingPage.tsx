@@ -2,6 +2,7 @@ import NavBar from "./NavBar";
 import { useVaultStats } from "../hooks/useVaultStats";
 
 function LandingPage() {
+  // Fetch share price + loading/error state from vault
   const { sharePrice, isLoading, isError } = useVaultStats();
 
   return (
@@ -9,16 +10,18 @@ function LandingPage() {
 
       <NavBar />
 
-      {/* MAIN */}
+      {/* MAIN SECTION (hero layout) */}
       <div className="flex flex-1 px-20 items-center justify-between">
 
-        {/* LEFT */}
+        {/* LEFT SIDE → product intro */}
         <div className="max-w-xl">
 
+          {/* Main headline */}
           <h1 className="text-[85px] font-semibold leading-tight">
             TRADE. <br /> MULTIPLY. <br /> MAX WITHDRAW.
           </h1>
 
+          {/* Description */}
           <p className="mt-6 text-c5 text-lg leading-relaxed">
             PiggyVault is a smart DeFi vault where your ETH grows automatically.
             Deposit, earn yield, and withdraw more than you started with — all on-chain.
@@ -33,13 +36,14 @@ function LandingPage() {
 
         </div>
 
-        {/* RIGHT */}
+        {/* RIGHT SIDE → live stats + branding */}
         <div className="flex flex-col items-end text-right">
 
           <p className="text-c5 text-lg tracking-widest mb-2">
             CURRENT SHARE PRICE
           </p>
 
+          {/* Share price with loading + error handling */}
           <h1 className="text-[90px] font-bold text-c6 leading-none drop-shadow-[0_0_20px_rgba(204,208,207,0.25)]">
             {isLoading
               ? "..."
@@ -50,10 +54,12 @@ function LandingPage() {
 
           <p className="text-c5 text-xl mb-8">ETH per Share</p>
 
+          {/* Branding */}
           <h1 className="text-[80px] font-semibold text-c5 leading-tight">
             PIGGYvault
           </h1>
 
+          {/* Short description */}
           <p className="text-c5/70 text-lg mt-4 max-w-sm">
             A smart yield vault designed to maximize your returns with seamless deposits and withdrawals.
           </p>
@@ -62,7 +68,7 @@ function LandingPage() {
 
       </div>
 
-      {/* FEATURES */}
+      {/* FEATURES SECTION*/}
       <div className="flex justify-center pb-10">
 
         <div className="flex gap-16 text-center">
