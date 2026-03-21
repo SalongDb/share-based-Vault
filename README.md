@@ -61,8 +61,8 @@ The vault can gain ETH via:
 - Force-sent ETH (selfdestruct)
 - Future yield strategies
 
-Since:
-sharePrice = totalAssets / totalSupply
+Since:__
+sharePrice = totalAssets / totalSupply__
 
 Any increase in assets → higher share price
 
@@ -88,19 +88,19 @@ Result:
 
 ### Key Insight
 
-Users don’t get paid yield directly.
+Users don’t get paid yield directly.__
 Their shares become more valuable over time.
 
 ---
 
 ## 🏗️ Project Structure
 
-project-root/
-│
-├── contract/ → Solidity smart contract
-├── frontend/ → React + Wagmi frontend
-│
-└── README.md
+project-root/__
+│__
+├── contract/ → Solidity smart contract__
+├── frontend/ → React + Wagmi frontend__
+│__
+└── README.md__
 
 ---
 
@@ -119,18 +119,18 @@ project-root/
 
 ### 1. Clone repo
 
-git clone <https://github.com/SalongDb/share-based-Vault>
+git clone <https://github.com/SalongDb/share-based-Vault>__
 cd project-root
 
 ### 2. Install dependencies
 
 ### Frontend:
-cd frontend
+cd frontend__
 npm install
 
 
 ### Contract:
-cd contract
+cd contract__
 npm install
 
 ---
