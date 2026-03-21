@@ -48,7 +48,7 @@ A React-based frontend for interacting with the ETH Vault smart contract.
 ## ⚙️ Setup
 
 
-npm install
+npm install  
 npm run dev
 
 

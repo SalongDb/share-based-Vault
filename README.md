@@ -61,8 +61,8 @@ The vault can gain ETH via:
 - Force-sent ETH (selfdestruct)
 - Future yield strategies
 
-Since:__
-sharePrice = totalAssets / totalSupply__
+Since:  
+sharePrice = totalAssets / totalSupply
 
 Any increase in assets → higher share price
 
@@ -100,7 +100,7 @@ project-root/
 ├── contract/ → Solidity smart contract  
 ├── frontend/ → React + Wagmi frontend  
 │  
-└── README.md__  
+└── README.md
 
 ---
 
