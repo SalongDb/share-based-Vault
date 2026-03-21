@@ -5,7 +5,10 @@ import { safeParseEther } from "../utils/parse";
 import toast from "react-hot-toast";
 
 // Hook for owner-only actions (view fees + withdraw)
-export function useOwner(withdrawAmount: string, refetchStats: () => Promise<void>) {
+export function useOwner(withdrawAmount: string, 
+                refetchStats: () => Promise<void>,
+                resetWithdraw: () => void,
+            ) {
 
     // Write function for contract transactions
     const { writeContractAsync, isPending } = useWriteContract();
@@ -48,8 +51,10 @@ export function useOwner(withdrawAmount: string, refetchStats: () => Promise<voi
 
             await txPromise;
 
-            refetchFees();
-            refetchStats();
+            await refetchFees();
+            await refetchStats();
+            
+            resetWithdraw();
 
         } catch (err) {
             console.log(err);

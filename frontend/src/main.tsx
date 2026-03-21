@@ -6,7 +6,7 @@ import Providers from './providers/WagmiProviders.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Providers>
+    <Providers> {/* Makes blockchain + data available to whole app */}
       <App />
     </Providers>
   </StrictMode>,

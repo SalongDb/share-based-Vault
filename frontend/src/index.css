@@ -32,6 +32,7 @@
 }
 
 @theme {
+    /* Custom color palette */
     --color-c1: #06141B;
     --color-c2: #11212D;
     --color-c3: #253745;
@@ -39,5 +40,6 @@
     --color-c5: #9BA8AB;
     --color-c6: #CCD0CF;
 
+    /* Custom font */
     --font-oswald: "Oswald", sans-serif;
 }

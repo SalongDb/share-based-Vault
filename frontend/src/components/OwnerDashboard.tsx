@@ -7,11 +7,15 @@ function OwnerDashboard() {
     // State for owner input (amount to withdraw fees)
     const [withdrawAmount, setWithdrawAmount] = useState("");
 
+    const resetWithdraw = () => {
+        setWithdrawAmount("");
+    };
+
     // Vault-wide stats (share price, assets, supply + loading/error)
     const { sharePrice, formattedAssets, formattedSupply, isLoading, isError, refetchStats } = useVaultStats();
 
     // Owner-specific logic (fee balance + withdraw action + states)
-    const { formattedFees, withdraw, isLoadingFees, isErrorFees, isPending } = useOwner(withdrawAmount, refetchStats);
+    const { formattedFees, withdraw, isLoadingFees, isErrorFees, isPending } = useOwner(withdrawAmount, refetchStats, resetWithdraw);
 
     return (
         <div className="w-full min-h-screen bg-gradient-to-br from-c1 via-c3 to-c6 pt-24 px-10 text-c6 font-oswald">
@@ -47,6 +51,7 @@ function OwnerDashboard() {
                             <input
                                 className="w-full px-4 py-3 rounded-lg bg-c1/60 border border-c4/20 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-c4"
                                 placeholder="Amount"
+                                value={withdrawAmount}
                                 onChange={(e) => setWithdrawAmount(e.target.value)}
                             />
 
