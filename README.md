@@ -88,19 +88,19 @@ Result:
 
 ### Key Insight
 
-Users don’t get paid yield directly.__
+Users don’t get paid yield directly.  
 Their shares become more valuable over time.
 
 ---
 
 ## 🏗️ Project Structure
 
-project-root/__
-│__
-├── contract/ → Solidity smart contract__
-├── frontend/ → React + Wagmi frontend__
-│__
-└── README.md__
+project-root/  
+│  
+├── contract/ → Solidity smart contract  
+├── frontend/ → React + Wagmi frontend  
+│  
+└── README.md__  
 
 ---
 
@@ -119,18 +119,18 @@ project-root/__
 
 ### 1. Clone repo
 
-git clone <https://github.com/SalongDb/share-based-Vault>__
+git clone <https://github.com/SalongDb/share-based-Vault>  
 cd project-root
 
 ### 2. Install dependencies
 
 ### Frontend:
-cd frontend__
+cd frontend  
 npm install
 
 
 ### Contract:
-cd contract__
+cd contract  
 npm install
 
 ---
