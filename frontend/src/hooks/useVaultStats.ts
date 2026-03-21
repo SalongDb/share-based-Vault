@@ -6,15 +6,19 @@ import { formatEth } from "../utils/format";
 export function useVaultStats() {
 
     //getting totalAssets and totalSupply from contract
-    const { data: totalAssets } = useReadContract({
+    const { data: totalAssets, isLoading: isAssetsLoading, isError: isAssetsError } = useReadContract({
         ...vaultContractConfig,
         functionName: "totalAssets",
     });
 
-    const { data: totalSupply } = useReadContract({
-        ...vaultContractConfig,
-        functionName: "totalSupply"
-    });
+    const { data: totalSupply, isLoading: isSupplyLoading,
+        isError: isSupplyError, } = useReadContract({
+            ...vaultContractConfig,
+            functionName: "totalSupply"
+        });
+
+    const isLoading = isAssetsLoading || isSupplyLoading;
+    const isError = isAssetsError || isSupplyError;
 
     const assets = totalAssets as bigint | undefined;
     const supply = totalSupply as bigint | undefined;
@@ -34,6 +38,8 @@ export function useVaultStats() {
     return {
         sharePrice,
         formattedAssets,
-        formattedSupply
+        formattedSupply,
+        isLoading,
+        isError,
     }
 }

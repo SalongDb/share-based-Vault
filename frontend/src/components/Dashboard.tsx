@@ -1,5 +1,5 @@
 import NavBar from "./NavBar";
-import { formatEther} from "viem";
+import { formatEther } from "viem";
 import { useState } from "react";
 import { useVault } from "../hooks/useVault";
 import { useVaultStats } from "../hooks/useVaultStats";
@@ -14,23 +14,27 @@ function Dashboard() {
   const [withdrawETH, setWithdrawETH] = useState("");
   const [withdrawShares, setWithdrawShares] = useState("");
 
-  const { sharePrice } = useVaultStats();
+  const { sharePrice, isLoading, isError } = useVaultStats();
 
   const {
-  formattedUserShares,
-  formattedUserAssets,
-  previewDepositShares,
-  previewMintAssets,
-  previewRedeemAssets,
-  previewWithdrawShares,
-  deposit,
-  withdraw
-} = useVault(
-  depositETH,
-  depositShares,
-  withdrawETH,
-  withdrawShares
-);
+    formattedUserShares,
+    formattedUserAssets,
+    previewDepositShares,
+    previewMintAssets,
+    previewRedeemAssets,
+    previewWithdrawShares,
+    deposit,
+    withdraw,
+    isDepositing,
+    isWithdrawing,
+    isUserLoading,
+    isUserError,
+  } = useVault(
+    depositETH,
+    depositShares,
+    withdrawETH,
+    withdrawShares,
+  );
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-c1 via-c3 to-c6 pt-24 px-10 text-c6 font-oswald">
@@ -44,7 +48,13 @@ function Dashboard() {
             Share Price
           </h1>
           <p className="text-5xl font-semibold mt-2 text-c6">
-            {sharePrice} ETH
+            {isLoading ? (
+              <p>Loading...</p>
+            ) : isError ? (
+              <p className="text-red-400">Error loading data</p>
+            ) : (
+              <p>{sharePrice} ETH</p>
+            )}
           </p>
         </div>
       </div>
@@ -62,6 +72,7 @@ function Dashboard() {
             <div className="space-y-4">
               <div className="flex gap-3">
                 <input
+                  disabled={isDepositing}
                   className="w-full px-4 py-3 rounded-lg bg-c1/60 border border-c4/20 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-c4"
                   value={depositETH}
                   onChange={(e) => {
@@ -80,6 +91,7 @@ function Dashboard() {
 
               <div className="flex gap-3">
                 <input
+                  disabled={isDepositing}
                   className="w-full px-4 py-3 rounded-lg bg-c1/60 border border-c4/20 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder:text-c4"
                   value={depositShares}
                   onChange={(e) => {
@@ -97,10 +109,11 @@ function Dashboard() {
               </div>
 
               <button
-                className="w-full py-3 rounded-lg bg-green-500 hover:bg-green-600 transition font-semibold shadow-lg"
+                disabled={isDepositing || (!depositETH && !depositShares)}
+                className={`w-full py-3 rounded-lg font-semibold shadow-lg ${isDepositing ? "bg-gray-400" : "bg-green-500 hover:bg-green-600"} `}
                 onClick={deposit}
               >
-                Deposit
+                {isDepositing ? "Processing..." : "Deposit"}
               </button>
             </div>
           </div>
@@ -112,6 +125,7 @@ function Dashboard() {
             <div className="space-y-4">
               <div className="flex gap-3">
                 <input
+                  disabled={isWithdrawing}
                   className="w-full px-4 py-3 rounded-lg bg-c1/60 border border-c4/20 focus:outline-none focus:ring-2 focus:ring-red-400 placeholder:text-c4"
                   value={withdrawETH}
                   onChange={(e) => {
@@ -130,6 +144,7 @@ function Dashboard() {
 
               <div className="flex gap-3">
                 <input
+                  disabled={isWithdrawing}
                   className="w-full px-4 py-3 rounded-lg bg-c1/60 border border-c4/20 focus:outline-none focus:ring-2 focus:ring-red-400 placeholder:text-c4"
                   value={withdrawShares}
                   onChange={(e) => {
@@ -147,10 +162,11 @@ function Dashboard() {
               </div>
 
               <button
-                className="w-full py-3 rounded-lg bg-red-500 hover:bg-red-600 transition font-semibold shadow-lg"
+                disabled={isWithdrawing || (!withdrawETH && !withdrawShares)}
+                className={`w-full py-3 rounded-lg font-semibold shadow-lg ${isWithdrawing ? "bg-gray-400" : "bg-red-500 hover:bg-red-600"}`}
                 onClick={withdraw}
               >
-                Withdraw
+                {isWithdrawing ? "Processing..." : "Withdraw"}
               </button>
             </div>
           </div>
@@ -164,24 +180,35 @@ function Dashboard() {
           <div className="bg-c1/40 p-5 rounded-xl border border-c4/20">
             <p className="text-c4">Total Assets</p>
             <p className="text-2xl font-semibold mt-1 text-c6">
-              {formattedUserAssets} ETH
+              {isUserLoading
+                ? "Loading..."
+                : isUserError
+                  ? "Error"
+                  : `${formattedUserAssets} ETH`}
             </p>
           </div>
 
           <div className="bg-c1/40 p-5 rounded-xl border border-c4/20">
             <p className="text-c4">Total Shares</p>
             <p className="text-2xl font-semibold mt-1 text-c6">
-              {formattedUserShares} xETH
+              {isUserLoading
+                ? "Loading..."
+                : isUserError
+                  ? "Error"
+                  : `${formattedUserShares} ETH`}
             </p>
           </div>
 
           <div className="bg-c1/40 p-5 rounded-xl border border-c4/20">
             <p className="text-c4">Your Deposit</p>
             <p className="text-2xl font-semibold mt-1 text-c6">
-              {formattedUserAssets} ETH
+              {isUserLoading
+                ? "Loading..."
+                : isUserError
+                  ? "Error"
+                  : `${formattedUserAssets} ETH`}
             </p>
           </div>
-
         </div>
       </div>
     </div>

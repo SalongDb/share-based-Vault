@@ -5,14 +5,18 @@ import { safeParseEther } from "../utils/parse";
 
 export function useOwner(withdrawAmount: string) {
 
-    const { writeContractAsync } = useWriteContract();
+    const { writeContractAsync, isPending } = useWriteContract();
 
     const withdrawAmountWei = safeParseEther(withdrawAmount);
 
-    const { data: feeBalance } = useReadContract({
+    const { data: feeBalance, isLoading,
+  isError } = useReadContract({
         ...vaultContractConfig,
         functionName: "feeBalance",
     });
+
+    const isLoadingFees = isLoading;
+    const isErrorFees = isError;
 
     const formattedFee = feeBalance as bigint | undefined;
     const formattedFees = formatEth(formattedFee);
@@ -32,7 +36,10 @@ export function useOwner(withdrawAmount: string) {
 
     return {
         formattedFees,
-        withdraw
+        withdraw,
+        isLoadingFees,
+        isErrorFees,
+        isPending,
     }
 
 }

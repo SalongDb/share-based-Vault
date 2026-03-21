@@ -2,6 +2,7 @@ import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { vaultContractConfig } from "../contracts/vault";
 import { formatEth } from "../utils/format";
 import { safeParseEther } from "../utils/parse";
+import { useState } from "react";
 
 export function useVault(
     depositETH: string,
@@ -19,17 +20,22 @@ export function useVault(
     const withdrawSharesWei = safeParseEther(withdrawShares);
 
     //getting total existing shares and assets of user
-    const { data: userSharesFetched } = useReadContract({
+    const { data: userSharesFetched, isLoading: isUserSharesLoading,
+  isError: isUserSharesError, } = useReadContract({
         ...vaultContractConfig,
         functionName: "balanceOf",
         args: [address!],
     });
 
-    const { data: userAssetsFetched } = useReadContract({
+    const { data: userAssetsFetched, isLoading: isUserAssetsLoading,
+  isError: isUserAssetsError, } = useReadContract({
         ...vaultContractConfig,
         functionName: "convertToAssets",
         args: [userSharesFetched ?? 0n],
     });
+
+    const isUserLoading = isUserSharesLoading || isUserAssetsLoading;
+const isUserError = isUserSharesError || isUserAssetsError;
 
     //previewing the required ETH or shares for deposit or withdrawl
     const { data: previewDepositShares } = useReadContract({
@@ -62,8 +68,12 @@ export function useVault(
     const formattedUserShares = formatEth(userShares);
     const formattedUserAssets = formatEth(userAssets);
 
+    const [isDepositing, setIsDepositing] = useState(false);
+const [isWithdrawing, setIsWithdrawing] = useState(false);
+
     async function deposit() {
         try {
+            setIsDepositing(true);
             if (depositETH) {
                 await writeContractAsync({
                     ...vaultContractConfig,
@@ -81,12 +91,14 @@ export function useVault(
                 });
             }
         } catch (err) {
+            setIsDepositing(false);
             console.error(err);
         }
     }
 
     async function withdraw() {
         try {
+            setIsWithdrawing(true);
             // Withdraw using ETH input
             if (withdrawETH) {
                 await writeContractAsync({
@@ -106,6 +118,7 @@ export function useVault(
             }
 
         } catch (err) {
+            setIsWithdrawing(false);
             console.log("Withdraw error:", err);
         }
     }
@@ -119,5 +132,9 @@ export function useVault(
         previewWithdrawShares,
         deposit,
         withdraw,
+        isDepositing,
+        isWithdrawing,
+        isUserLoading,
+        isUserError,
     };
 }

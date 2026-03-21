@@ -2,7 +2,7 @@ import NavBar from "./NavBar";
 import { useVaultStats } from "../hooks/useVaultStats";
 
 function LandingPage() {
-  const {sharePrice} = useVaultStats();
+  const { sharePrice, isLoading, isError } = useVaultStats();
 
   return (
     <div className="w-full h-screen overflow-hidden bg-gradient-to-br from-c1 via-c3 to-c6 text-c6 font-oswald flex flex-col">
@@ -41,7 +41,11 @@ function LandingPage() {
           </p>
 
           <h1 className="text-[90px] font-bold text-c6 leading-none drop-shadow-[0_0_20px_rgba(204,208,207,0.25)]">
-            {sharePrice}
+            {isLoading
+              ? "..."
+              : isError
+                ? "Error"
+                : sharePrice}
           </h1>
 
           <p className="text-c5 text-xl mb-8">ETH per Share</p>

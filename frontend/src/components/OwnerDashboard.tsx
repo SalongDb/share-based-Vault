@@ -5,8 +5,8 @@ import { useVaultStats } from "../hooks/useVaultStats";
 
 function OwnerDashboard() {
     const [withdrawAmount, setWithdrawAmount] = useState("");
-    const { sharePrice,formattedAssets,formattedSupply } = useVaultStats();
-    const { formattedFees,withdraw } = useOwner(withdrawAmount);
+    const { sharePrice, formattedAssets, formattedSupply, isLoading, isError } = useVaultStats();
+    const { formattedFees, withdraw, isLoadingFees, isErrorFees, isPending } = useOwner(withdrawAmount);
 
     return (
         <div className="w-full min-h-screen bg-gradient-to-br from-c1 via-c3 to-c6 pt-24 px-10 text-c6 font-oswald">
@@ -20,7 +20,13 @@ function OwnerDashboard() {
                         Share Price
                     </h1>
                     <p className="text-5xl font-semibold mt-2 text-c6">
-                        {sharePrice} ETH
+                        {isLoading ? (
+                            <p>Loading...</p>
+                        ) : isError ? (
+                            <p className="text-red-400">Error loading data</p>
+                        ) : (
+                            <p>{sharePrice} ETH</p>
+                        )}
                     </p>
                 </div>
             </div>
@@ -41,10 +47,11 @@ function OwnerDashboard() {
                                 onChange={(e) => setWithdrawAmount(e.target.value)}
                             />
                             <button
-                                className="w-full py-3 rounded-lg bg-green-500 hover:bg-green-600 transition font-semibold shadow-lg"
+                                disabled={isPending || !withdrawAmount}
+                                className={`w-full py-3 rounded-lg font-semibold shadow-lg ${isPending ? "bg-gray-400" : "bg-green-500 hover:bg-green-600"} `}
                                 onClick={withdraw}
                             >
-                                Withdraw
+                                {isPending ? "Processing..." : "Withdraw"}
                             </button>
                         </div>
                     </div>
@@ -57,19 +64,34 @@ function OwnerDashboard() {
 
                     <div className="bg-c1/40 p-5 rounded-xl border border-c4/20">
                         <p className="text-c4">Total Fees</p>
-                        <p className="text-2xl font-semibold mt-1 text-c6">{formattedFees}
+                        <p className="text-2xl font-semibold mt-1 text-c6">
+                            {isLoadingFees
+                                ? "Loading..."
+                                : isErrorFees
+                                    ? "Error"
+                                    : `${formattedFees} ETH`}
                         </p>
                     </div>
 
                     <div className="bg-c1/40 p-5 rounded-xl border border-c4/20">
                         <p className="text-c4">Total Assets</p>
-                        <p className="text-2xl font-semibold mt-1 text-c6">{formattedAssets}
+                        <p className="text-2xl font-semibold mt-1 text-c6">
+                            {isLoading
+                                ? "Loading..."
+                                : isError
+                                    ? "Error"
+                                    : `${formattedAssets} ETH`}
                         </p>
                     </div>
 
                     <div className="bg-c1/40 p-5 rounded-xl border border-c4/20">
                         <p className="text-c4">Total Supply</p>
-                        <p className="text-2xl font-semibold mt-1 text-c6">{formattedSupply}
+                        <p className="text-2xl font-semibold mt-1 text-c6">
+                            {isLoading
+                                ? "Loading..."
+                                : isError
+                                    ? "Error"
+                                    : `${formattedSupply} ETH`}
                         </p>
                     </div>
 
